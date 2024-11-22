@@ -1,0 +1,163 @@
+:root {
+    --instagram-blue: #0095f6;
+    --instagram-red: #ed4956;
+    --instagram-border: #dbdbdb;
+    --instagram-bg: #fafafa;
+}
+
+body {
+    background-color: var(--instagram-bg);
+}
+
+/* Navbar styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.main-container {
+    margin-top: 80px;
+}
+
+/* Post card animations */
+.post-card {
+    transition: all 0.3s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Like animation */
+.like-btn.liked i {
+    animation: likeAnimation 0.3s ease;
+}
+
+@keyframes likeAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Stories section */
+.stories-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.story-item {
+    display: inline-block;
+    margin-right: 1rem;
+    text-align: center;
+}
+
+.story-avatar {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+/* Hashtag styles */
+.hashtag {
+    color: #00376b;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.hashtag:hover {
+    color: #0095f6;
+    text-decoration: underline;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+}
+
+.loading-spinner::after {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3897f0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Animation pour les likes */
+.like-btn i {
+    transition: transform 0.2s ease;
+}
+
+.like-btn:hover i {
+    transform: scale(1.2);
+}
+
+/* Style pour les posts */
+.post-card {
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.post-card img {
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+.post-card .card-body {
+    padding: 0.75rem;
+}
+
+/* Style de la pagination */
+.pagination .page-link {
+    color: #262626;
+    border-color: #dbdbdb;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0095f6;
+    border-color: #0095f6;
+}
+
+.comment-form input {
+    border-right: none;
+}
+
+.comment-form .btn {
+    border-left: none;
+    background-color: transparent;
+}
+
+.comment-form .btn:hover {
+    background-color: transparent;
+}
+
+.comment {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.comments-section {
+    max-height: 100px;
+    overflow-y: auto;
+} 

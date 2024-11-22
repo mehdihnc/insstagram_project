@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Colonne de gauche - Informations du profil -->
+        <div class="col-md-4">
+            <!-- Carte profil -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <!-- Photo de profil -->
+                    <div class="profile-image mb-3">
+                        {% if profile_user.profile.avatar %}
+                            <img src="{{ profile_user.profile.avatar.url }}" class="rounded-circle" width="150" height="150" alt="Photo de profil" style="object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-light" style="width: 150px; height: 150px;">
+                                <i class="fas fa-user fa-5x text-secondary"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h4>{{ profile_user.username }}</h4>
+                    <p class="text-muted">{{ profile_user.profile.bio|default:"" }}</p>
+
+                    <!-- Statistiques -->
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <h6>Publications</h6>
+                            <span class="posts-count">{{ stats.posts_count }}</span>
+                        </div>
+                        <div class="col-4">
+                            <h6>Abonnés</h6>
+                            <span class="followers-count">{{ stats.followers_count }}</span>
+                        </div>
+                        <div class="col-4">
+                            <h6>Abonnements</h6>
+                            <span>{{ stats.following_count }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    {% if request.user == profile_user %}
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'users:edit_profile' profile_user.pk %}" class="btn btn-outline-primary mb-2">Modifier le profil</a>
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Supprimer le compte</button>
+                        </div>
+                    {% else %}
+                    <button id="followBtn" 
+                    class="follow-btn btn {% if is_following %}btn-outline-primary{% else %}btn-primary{% endif %} w-100" 
+                    data-user-id="{{ profile_user.pk }}">
+                {% if is_following %}Ne plus suivre{% else %}Suivre{% endif %}
+            </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte activité récente -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Activité récente</h5>
+                    <div class="list-group list-group-flush">
+                        {% for like in recent_likes %}
+                            <div class="list-group-item border-0 px-0">
+                                <small class="text-muted">
+                                    <i class="fas fa-heart text-danger"></i>
+                                    A aimé un post de {{ like.post.user.username }}
+                                    <span class="float-end">{{ like.created_at|timesince }}</span>
+                                </small>
+                            </div>
+                        {% endfor %}
+                        {% for comment in recent_comments %}
+                            <div class="list-group-item border-0 px-0">
+                                <small class="text-muted">
+                                    <i class="fas fa-comment text-primary"></i>
+                                    A commenté un post de {{ comment.post.user.username }}
+                                    <span class="float-end">{{ comment.created_at|timesince }}</span>
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne de droite - Publications -->
+        <div class="col-md-8">
+            <div class="row g-3">
+                {% for post in posts %}
+                    <div class="col-md-4">
+                        <a href="{% url 'posts:post_detail' post.id %}" class="text-decoration-none">
+                            <div class="card post-card h-100">
+                                <img src="{{ post.image.url }}" class="card-img-top" alt="Post" style="object-fit: cover; height: 200px;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <button class="btn btn-link p-0 me-2 like-btn" data-post-id="{{ post.id }}">
+                                                <i class="{% if post.is_liked %}fas{% else %}far{% endif %} fa-heart text-danger"></i>
+                                            </button>
+                                            <span class="likes-count">{{ post.get_likes_count }}</span>
+                                        </div>
+                                        <div>
+                                            <i class="far fa-comment text-primary"></i>
+                                            <span class="ms-1">{{ post.get_comments_count }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% empty %}
+                    <div class="col text-center">
+                        <p class="text-muted">Aucune publication</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression de compte -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Supprimer le compte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a href="{% url 'users:delete_account' profile_user.pk %}" class="btn btn-danger">Supprimer définitivement</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const followBtn = document.getElementById('followBtn');
+    
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            console.log('Click sur le bouton suivre, userId:', userId); // Debug
+            
+            fetch(`/follows/toggle/${userId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                console.log('Réponse reçue:', response.status); // Debug
+                return response.json();
+            })
+            .then(data => {
+                console.log('Données reçues:', data); // Debug
+                
+                if (data.status === 'success') {
+                    // Mise à jour du bouton
+                    if (data.is_following) {
+                        this.textContent = 'Ne plus suivre';
+                        this.classList.remove('btn-primary');
+                        this.classList.add('btn-outline-primary');
+                    } else {
+                        this.textContent = 'Suivre';
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-primary');
+                    }
+                    
+                    // Mise à jour du compteur
+                    const followersCount = document.querySelector('.followers-count');
+                    if (followersCount) {
+                        followersCount.textContent = data.followers_count;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
+
+<style>
+.default-avatar {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+}
+
+.profile-image img {
+    object-fit: cover;
+}
+
+/* ... reste des styles ... */
+</style>

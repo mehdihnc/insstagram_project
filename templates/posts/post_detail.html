@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-white d-flex align-items-center">
+                    {% if post.user.profile_picture %}
+                        <img src="{{ post.user.profile_picture.url }}" class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-2x me-2"></i>
+                    {% endif %}
+                    <a href="{% url 'users:profile' post.user.pk %}" class="text-dark text-decoration-none">
+                        {{ post.user.username }}
+                    </a>
+                </div>
+
+                <img src="{{ post.image.url }}" class="card-img-top">
+
+                <div class="card-body">
+                    <div class="actions mb-2">
+                        <button class="btn btn-link p-0 me-3 like-btn" data-post-id="{{ post.id }}">
+                            <i class="{% if is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
+                        </button>
+                    </div>
+                    <p class="likes-count mb-1">
+                        {{ likes_count }} j'aime{{ likes_count|pluralize }}
+                    </p>
+                    
+                    <div class="comments-section" id="comments-{{ post.id }}">
+                        {% for comment in post.post_comments.all %}
+                            <p class="mb-1">
+                                <span class="fw-bold">{{ comment.user.username }}</span>
+                                {{ comment.content }}
+                            </p>
+                        {% endfor %}
+                    </div>
+
+                    <form class="comment-form" data-post-id="{{ post.id }}">
+                        <div class="input-group">
+                            <input type="text" name="content" class="form-control" placeholder="Ajouter un commentaire...">
+                            <button class="btn btn-outline-primary" type="submit">Publier</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

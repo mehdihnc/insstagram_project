@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Créer une publication</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="post-form">
+                        {% csrf_token %}
+                        
+                        <!-- Prévisualisation de l'image -->
+                        <div class="mb-3 text-center">
+                            <img id="preview" src="#" alt="Prévisualisation" 
+                                 style="max-width: 100%; max-height: 400px; display: none;">
+                        </div>
+
+                        <!-- Sélection de l'image -->
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ form.image.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Légende -->
+                        <div class="mb-3">
+                            <label class="form-label">Légende</label>
+                            {{ form.caption }}
+                            {% if form.caption.errors %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ form.caption.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Utilisez # pour ajouter des hashtags à votre post
+                            </div>
+                        </div>
+
+                        <!-- Hashtags suggérés -->
+                        <div id="hashtag-suggestions" class="mb-3"></div>
+
+                        <button type="submit" class="btn btn-primary">Publier</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prévisualisation de l'image
+    const imageInput = document.querySelector('input[type="file"]');
+    const preview = document.getElementById('preview');
+
+    imageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Gestion des hashtags
+    const captionInput = document.querySelector('textarea[name="caption"]');
+    const suggestionsDiv = document.getElementById('hashtag-suggestions');
+    
+    captionInput.addEventListener('input', function() {
+        const text = this.value;
+        const lastWord = text.split(' ').pop();
+        
+        if (lastWord.startsWith('#') && lastWord.length > 1) {
+            // Ici vous pourriez ajouter une requête AJAX pour obtenir des suggestions
+            // de hashtags basées sur ce que l'utilisateur tape
+            suggestionsDiv.innerHTML = '<div class="alert alert-info">Tapez votre hashtag...</div>';
+        } else {
+            suggestionsDiv.innerHTML = '';
+        }
+    });
+});
+</script>
+{% endblock %} 

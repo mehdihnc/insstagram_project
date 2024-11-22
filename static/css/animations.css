@@ -1,0 +1,44 @@
+/* Animations pour les transitions de page */
+.page-transition {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Animation pour les likes */
+.heart-animation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    color: white;
+    font-size: 100px;
+    pointer-events: none;
+    animation: heartBurst 1s cubic-bezier(.17,.89,.32,1.49);
+}
+
+@keyframes heartBurst {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    15% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
+    30% { transform: translate(-50%, -50%) scale(0.95); }
+    45%, 80% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+/* Animation pour le chargement des stories */
+.story-loading {
+    position: relative;
+}
+
+.story-progress {
+    height: 2px;
+    background: linear-gradient(to right, var(--instagram-blue) var(--progress), transparent 0);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    transition: --progress 0.1s linear;
+} 
