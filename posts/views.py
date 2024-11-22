@@ -11,15 +11,15 @@ from users.models import User
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 import json
-from interactions.models import Comment  # Importez le modèle Comment de l'app interactions
-from interactions.models import Like  # Importez le modèle Like de l'app interactions
+from interactions.models import Comment
+from interactions.models import Like
 from django.utils import timezone
 
 # Create your views here.
 
 class FeedView(LoginRequiredMixin, ListView):
-    model = Post
     template_name = 'posts/feed.html'
+    model = Post
     context_object_name = 'posts'
     
     def get_queryset(self):
@@ -37,7 +37,6 @@ class FeedView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Si vous avez besoin d'autres données de contexte, ajoutez-les ici
         return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -89,19 +88,20 @@ class LikePostView(LoginRequiredMixin, View):
         return JsonResponse({'liked': liked, 'count': post.likes.count()})
 
 class HashtagView(LoginRequiredMixin, ListView):
-    model = Post
-    template_name = 'posts/hashtag.html'
+    template_name = 'posts/hashtag_posts.html'
     context_object_name = 'posts'
     paginate_by = 12
 
     def get_queryset(self):
-        hashtag_name = self.kwargs['hashtag'].lower()
-        self.hashtag = get_object_or_404(Hashtag, name=hashtag_name)
-        return Post.objects.filter(hashtags=self.hashtag).order_by('-created_at')
+        hashtag = self.kwargs['hashtag']
+        return Post.objects.filter(
+            caption__icontains=f'#{hashtag}'
+        ).order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['hashtag'] = self.hashtag
+        context['hashtag'] = self.kwargs['hashtag']
+        context['posts_count'] = self.get_queryset().count()
         return context
 
 class HashtagPostsView(LoginRequiredMixin, ListView):

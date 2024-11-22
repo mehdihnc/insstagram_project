@@ -43,6 +43,19 @@
                         {{ post.get_likes_count }} j'aime{{ post.get_likes_count|pluralize }}
                     </p>
                     
+                    {% if post.caption %}
+                        <p class="card-text mb-2">
+                            <span class="fw-bold">{{ post.user.username }}</span>
+                            {% for word in post.caption.split %}
+                                {% if word.0 == '#' %}
+                                    <a href="{% url 'posts:hashtag_posts' word|slice:'1:'|lower %}" class="hashtag">{{ word }}</a>
+                                {% else %}
+                                    {{ word }}
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
                     <div class="comments-section" id="comments-{{ post.id }}">
                         {% for comment in post.post_comments.all|slice:":3" %}
                             <p class="mb-1">

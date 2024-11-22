@@ -27,6 +27,32 @@ class Post(models.Model):
     def get_comments_count(self):
         return self.post_comments.count()
 
+    def format_caption_with_hashtags(self):
+        words = self.caption.split()
+        formatted_words = []
+        for word in words:
+            if word.startswith('#'):
+                hashtag_name = word[1:]
+                formatted_words.append(f'<a href="/hashtag/{hashtag_name}/" class="hashtag">{word}</a>')
+            else:
+                formatted_words.append(word)
+        return ' '.join(formatted_words)
+
+    def extract_hashtags(self):
+        """Extrait les hashtags du caption"""
+        if not self.caption:
+            return []
+        words = self.caption.split()
+        return [word[1:] for word in words if word.startswith('#')]
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Mettre à jour les hashtags après la sauvegarde
+        hashtags = self.extract_hashtags()
+        for tag_name in hashtags:
+            hashtag, _ = Hashtag.objects.get_or_create(name=tag_name.lower())
+            self.hashtags.add(hashtag)
+
 class Hashtag(models.Model):
     name = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)

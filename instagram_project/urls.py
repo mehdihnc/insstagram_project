@@ -18,13 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from posts.views import FeedView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('posts.urls')),
+    path('posts/', include('posts.urls', namespace='posts')),
     path('users/', include('users.urls')),
     path('follows/', include('follows.urls')),
     path('interactions/', include('interactions.urls')),
+    path('feed/', FeedView.as_view(), name='feed'),
+    path('', include('posts.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

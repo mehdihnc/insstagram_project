@@ -1,3 +1,7 @@
+// NON FONCTIONNEL CA DEVAIT ETRE INTEGRE MAIS MANQUE DE TEMPS
+
+
+
 class StoriesManager {
     constructor() {
         this.currentStory = null;

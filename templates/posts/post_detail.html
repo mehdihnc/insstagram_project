@@ -1,33 +1,64 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container">
+<div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header bg-white d-flex align-items-center">
-                    {% if post.user.profile_picture %}
-                        <img src="{{ post.user.profile_picture.url }}" class="rounded-circle me-2" style="width: 32px; height: 32px;">
-                    {% else %}
-                        <i class="fas fa-user-circle fa-2x me-2"></i>
-                    {% endif %}
-                    <a href="{% url 'users:profile' post.user.pk %}" class="text-dark text-decoration-none">
-                        {{ post.user.username }}
-                    </a>
+                <!-- En-tête avec l'avatar et le nom d'utilisateur -->
+                <div class="card-header bg-white">
+                    <div class="d-flex align-items-center">
+                        {% if post.user.profile.avatar %}
+                            <img src="{{ post.user.profile.avatar.url }}?v={{ post.user.profile.updated_at|date:'U' }}" 
+                                 class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle me-2 d-flex align-items-center justify-content-center bg-light" 
+                                 style="width: 32px; height: 32px;">
+                                <i class="fas fa-user text-secondary"></i>
+                            </div>
+                        {% endif %}
+                        <a href="{% url 'users:profile' post.user.pk %}" class="text-dark text-decoration-none">
+                            {{ post.user.username }}
+                        </a>
+                    </div>
                 </div>
 
-                <img src="{{ post.image.url }}" class="card-img-top">
+                <!-- Image du post -->
+                <img src="{{ post.image.url }}" class="card-img-top" alt="Post image">
 
+                <!-- Corps du post -->
                 <div class="card-body">
+                    <!-- Actions (like, comment) -->
                     <div class="actions mb-2">
                         <button class="btn btn-link p-0 me-3 like-btn" data-post-id="{{ post.id }}">
                             <i class="{% if is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
                         </button>
+                        <button class="btn btn-link p-0">
+                            <i class="far fa-comment"></i>
+                        </button>
                     </div>
+
+                    <!-- Nombre de likes -->
                     <p class="likes-count mb-1">
                         {{ likes_count }} j'aime{{ likes_count|pluralize }}
                     </p>
-                    
+
+                    <!-- Caption avec hashtags -->
+                    {% if post.caption %}
+                        <p class="card-text mb-2">
+                            <span class="fw-bold">{{ post.user.username }}</span>
+                            {% for word in post.caption.split %}
+                                {% if word.0 == '#' %}
+                                    <a href="{% url 'posts:hashtag_posts' word|slice:'1:'|lower %}" class="hashtag">{{ word }}</a>
+                                {% else %}
+                                    {{ word }}
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    <!-- Commentaires -->
                     <div class="comments-section" id="comments-{{ post.id }}">
                         {% for comment in post.post_comments.all %}
                             <p class="mb-1">
@@ -37,7 +68,9 @@
                         {% endfor %}
                     </div>
 
-                    <form class="comment-form" data-post-id="{{ post.id }}">
+                    <!-- Formulaire de commentaire -->
+                    <form class="comment-form mt-3" data-post-id="{{ post.id }}">
+                        {% csrf_token %}
                         <div class="input-group">
                             <input type="text" name="content" class="form-control" placeholder="Ajouter un commentaire...">
                             <button class="btn btn-outline-primary" type="submit">Publier</button>
@@ -48,4 +81,42 @@
         </div>
     </div>
 </div>
+
+<style>
+.hashtag {
+    color: #00376b;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.hashtag:hover {
+    color: #0095f6;
+    text-decoration: underline;
+}
+
+.like-btn {
+    transition: all 0.2s ease;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+}
+
+.like-btn .fas.fa-heart {
+    color: #ed4956;
+}
+
+.comment-form input {
+    border-right: none;
+}
+
+.comment-form .btn {
+    border-left: none;
+}
+
+.comments-section {
+    max-height: 300px;
+    overflow-y: auto;
+}
+</style>
 {% endblock %} 

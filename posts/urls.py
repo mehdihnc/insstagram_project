@@ -15,4 +15,5 @@ urlpatterns = [
     path('hashtag/<str:hashtag>/', HashtagView.as_view(), name='hashtag'),
     path('hashtag/<str:hashtag>/posts/', HashtagPostsView.as_view(), name='hashtag_posts'),
     path('post/<int:post_id>/comment/', add_comment, name='add_comment'),
+    path('hashtag/<str:hashtag>/', HashtagView.as_view(), name='hashtag_posts'),
 ] 

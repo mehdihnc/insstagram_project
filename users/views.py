@@ -7,20 +7,21 @@ from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
 from posts.models import Post
 from .models import User, Profile
-from .forms import UserRegistrationForm, UserUpdateForm, UserLoginForm, UserProfileForm, CombinedProfileForm
+from .forms import UserUpdateForm, UserLoginForm, UserProfileForm, CombinedProfileForm, CustomUserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.views import View
 from interactions.models import Like, Comment
 from follows.models import Follow
+from django.contrib.auth.forms import UserCreationForm
 
 # Create your views here.
 
 class RegisterView(CreateView):
     model = User
     template_name = 'users/register.html'
-    form_class = UserRegistrationForm
-    success_url = reverse_lazy('feed')
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy('posts:feed')
 
     def form_valid(self, form):
         response = super().form_valid(form)
